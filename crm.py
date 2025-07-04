@@ -38,7 +38,16 @@ def kunde_hinzufuegen():
     Verhindert das Hinzufügen von Kunden mit bereits existierendem Namen.
     """
     print("\n--- Kunden hinzufügen ---")
-    name = input("Name des Kunden: ")
+
+    # Name darf nicht leer sein und nur Buchstaben/Leerzeichen enthalten
+    while True:
+        name = input("Name des Kunden: ").strip()
+        if not name:
+            print("\033[91m\u26A0 Der Name darf nicht leer sein. Bitte geben Sie einen Namen ein.\033[0m")
+        elif not re.match(r"^[A-Za-zÄÖÜäöüß ]+$", name):
+            print("\033[91m\u26A0 Der Name darf nur Buchstaben und Leerzeichen enthalten.\033[0m")
+        else:
+            break
 
     # Validierung für E-Mail: Schleife, bis ein gültiges Format eingegeben wird
     while True:
@@ -46,7 +55,7 @@ def kunde_hinzufuegen():
         if re.match(r"[^@]+@[^@]+\.[^@]+", email): # Einfache E-Mail-Validierung
             break
         else:
-            print("Ungültiges E-Mail-Format. Bitte versuchen Sie es erneut.")
+            print("\033[91m\u26A0 Ungültiges E-Mail-Format. Bitte versuchen Sie es erneut.\033[0m")
 
     # Validierung für Telefonnummer: Schleife, bis nur Ziffern (optional mit +) eingegeben werden
     while True:
@@ -55,11 +64,11 @@ def kunde_hinzufuegen():
         if telefon.replace('+', '').isdigit() and (telefon.startswith('+') or not telefon.startswith('+')):
             break
         else:
-            print("Ungültige Telefonnummer. Bitte geben Sie nur Ziffern ein (optional mit + am Anfang).")
+            print("\033[91m\u26A0 Ungültige Telefonnummer. Bitte geben Sie nur Ziffern ein (optional mit + am Anfang).\033[0m")
 
     # Überprüfe, ob der Name bereits existiert, um Duplikate zu vermeiden
     if name in kunden:
-        print(f"Fehler: Kunde '{name}' existiert bereits im Katalog.")
+        print(f"\033[91m\u26A0 Fehler: Kunde '{name}' existiert bereits im Katalog.\033[0m")
         return
 
     # Speichere die Kundendetails als verschachteltes Dictionary
@@ -87,7 +96,7 @@ def kunde_suchen():
 
     # Wenn keine Kunden gefunden wurden
     if not gefundene_kunden:
-        print(f"Keine Kunden gefunden, die '{suchbegriff}' im Namen oder in der E-Mail enthalten.")
+        print(f"\033[91m\u26A0 Keine Kunden gefunden, die '{suchbegriff}' im Namen oder in der E-Mail enthalten.\033[0m")
         return
 
     print(f"\n--- Gefundene Kunden für '{suchbegriff}' ---")
@@ -108,7 +117,7 @@ def kunde_aktualisieren():
     name_zu_aktualisieren = input("Name des zu aktualisierenden Kunden: ")
 
     if name_zu_aktualisieren not in kunden:
-        print(f"Fehler: Kunde '{name_zu_aktualisieren}' nicht im Katalog gefunden.")
+        print(f"\033[91m\u26A0 Fehler: Kunde '{name_zu_aktualisieren}' nicht im Katalog gefunden.\033[0m")
         return
 
     print(f"Aktuelle Daten für {name_zu_aktualisieren}:")
@@ -118,14 +127,14 @@ def kunde_aktualisieren():
     neue_email = input("Neue E-Mail (leer lassen für keine Änderung): ")
     if neue_email: # Nur validieren und aktualisieren, wenn eine Eingabe gemacht wurde
         while not re.match(r"[^@]+@[^@]+\.[^@]+", neue_email):
-            print("Ungültiges E-Mail-Format. Bitte versuchen Sie es erneut.")
+            print("\033[91m\u26A0 Ungültiges E-Mail-Format. Bitte versuchen Sie es erneut.\033[0m")
             neue_email = input("Neue E-Mail (leer lassen für keine Änderung): ")
         kunden[name_zu_aktualisieren]['email'] = neue_email
 
     neue_telefon = input("Neue Telefonnummer (leer lassen für keine Änderung): ")
     if neue_telefon: # Nur validieren und aktualisieren, wenn eine Eingabe gemacht wurde
         while not (neue_telefon.replace('+', '').isdigit() and (neue_telefon.startswith('+') or not neue_telefon.startswith('+'))):
-            print("Ungültige Telefonnummer. Bitte geben Sie nur Ziffern ein (optional mit + am Anfang).")
+            print("\033[91m\u26A0 Ungültige Telefonnummer. Bitte geben Sie nur Ziffern ein (optional mit + am Anfang).\033[0m")
             neue_telefon = input("Neue Telefonnummer (leer lassen für keine Änderung): ")
         kunden[name_zu_aktualisieren]['telefon'] = neue_telefon
 
@@ -142,7 +151,7 @@ def kunde_loeschen():
         del kunden[titel_zu_loeschen]
         print(f"Kunde '{titel_zu_loeschen}' wurde aus dem Katalog entfernt.")
     else:
-        print(f"Fehler: Kunde '{titel_zu_loeschen}' nicht im Katalog gefunden.")
+        print(f"\033[91m\u26A0 Fehler: Kunde '{titel_zu_loeschen}' nicht im Katalog gefunden.\033[0m")
 
 def katalog_speichern():
     """
@@ -155,7 +164,7 @@ def katalog_speichern():
             json.dump(kunden, f, indent=4, ensure_ascii=False)
         print(f"Katalog erfolgreich in '{DATEINAME}' gespeichert.")
     except IOError as e:
-        print(f"Fehler beim Speichern des Katalogs: {e}")
+        print(f"\033[91m\u26A0 Fehler beim Speichern des Katalogs: {e}\033[0m")
 
 def katalog_laden():
     """
@@ -170,13 +179,13 @@ def katalog_laden():
             kunden.update(json.load(f))
         print(f"Katalog erfolgreich aus '{DATEINAME}' geladen.")
     except FileNotFoundError:
-        print("Keine vorhandene Katalogdatei gefunden. Starte mit leerem Katalog.")
+        print("\033[91m\u26A0 Keine vorhandene Katalogdatei gefunden. Starte mit leerem Katalog.\033[0m")
         kunden.clear()
     except json.JSONDecodeError as e:
-        print(f"Fehler beim Laden des Katalogs (ungültiges JSON): {e}. Starte mit leerem Katalog.")
+        print(f"\033[91m\u26A0 Fehler beim Laden des Katalogs (ungültiges JSON): {e}. Starte mit leerem Katalog.\033[0m")
         kunden.clear()
     except Exception as e:
-        print(f"Ein unerwarteter Fehler beim Laden ist aufgetreten: {e}. Starte mit leerem Katalog.")
+        print(f"\033[91m\u26A0 Ein unerwarteter Fehler beim Laden ist aufgetreten: {e}. Starte mit leerem Katalog.\033[0m")
         kunden.clear()
 
 def zeige_menue():
@@ -201,8 +210,15 @@ def main():
     katalog_laden()
     while True:
         zeige_menue()
-        wahl = input("Ihre Wahl: ")
+        wahl = input("Ihre Wahl (1-6): ").strip()
 
+        # Nur Ziffern 1-6 erlauben, alles andere wird abgefangen
+        if not wahl.isdigit() or wahl not in {'1', '2', '3', '4', '5', '6'}:
+            # ANSI für rote Schrift und Warnzeichen
+            print("\033[91m\u26A0 Ungültige Eingabe. Bitte geben Sie eine Zahl von 1 bis 6 ein.\033[0m")
+            continue  # Zurück zum Menü
+
+        # Auswahl auswerten
         if wahl == '1':
             kunde_hinzufuegen()
         elif wahl == '2':
@@ -217,8 +233,5 @@ def main():
             katalog_speichern()
             print("Programm wird beendet. Auf Wiedersehen!")
             break
-        else:
-            print("Ungültige Eingabe. Bitte versuchen Sie es erneut.")
-
 if __name__ == "__main__":
     main()
